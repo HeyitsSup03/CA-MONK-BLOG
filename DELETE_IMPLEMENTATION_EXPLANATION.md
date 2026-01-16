@@ -1,10 +1,6 @@
 # How to Implement Blog Deletion - Interview Explanation
 
-## Overview
 
-When an interviewer asks how to implement blog deletion, here's a comprehensive explanation covering architecture, data flow, and best practices.
-
----
 
 ## Implementation Strategy
 
