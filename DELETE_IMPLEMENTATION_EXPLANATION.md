@@ -25,7 +25,7 @@ delete: async (id: number): Promise<void> => {
 - **Type safety**: Returns `Promise<void>` since DELETE doesn't return data
 - **Consistency**: Matches the pattern used for `create` and `getById`
 
-**Interview talking point**: "I keep all API calls in one place so if we need to change the API client (e.g., switch from fetch to axios), we only update one file."
+
 
 ---
 
@@ -61,7 +61,6 @@ export const useDeleteBlog = () => {
 - Prevents showing stale data if they navigate back
 - More efficient than invalidating (doesn't trigger a refetch we don't need)
 
-**Interview talking point**: "I use both `invalidateQueries` and `removeQueries` because they serve different purposes. Invalidation triggers a refetch for data that might still be needed, while removal cleans up data that's definitely gone."
 
 ---
 
@@ -109,7 +108,6 @@ export function BlogDetail({ blog, onDelete }: BlogDetailProps) {
 - **Prevents accidents**: Reduces chance of accidental deletion
 - **Better UX**: User has a chance to reconsider
 
-**Interview talking point**: "I use `window.confirm` for simplicity, but in production I'd use a proper modal component from shadcn/ui for better styling and accessibility."
 
 ---
 
@@ -147,7 +145,7 @@ const handleDeleteBlog = (id: number) => {
 2. **Auto-select next blog**: If other blogs exist, automatically select the first one for better UX
 3. **Handle edge cases**: What if it's the last blog? What if it's the currently selected one?
 
-**Interview talking point**: "I handle the UI state updates in the `onSuccess` callback because the mutation might succeed but we still need to update local state. This keeps the UI in sync with both server state and local state."
+
 
 ---
 
@@ -241,94 +239,6 @@ const deleteBlog = useDeleteBlog();
 
 ---
 
-## Interview Q&A
-
-### **Q: Why use TanStack Query mutations instead of manual state updates?**
-
-**A**: 
-- **Automatic loading/error states**: No need to manually manage `isLoading`, `isError`
-- **Cache management**: Automatically handles cache invalidation
-- **Request deduplication**: Multiple clicks = one request
-- **Retry logic**: Built-in retry on failure
-- **Optimistic updates**: Easy to implement for better UX
-- **Less boilerplate**: ~70% less code than manual implementation
-
-### **Q: How does cache invalidation work here?**
-
-**A**:
-1. User deletes blog → `deleteBlog.mutate(id)` called
-2. API call succeeds → `onSuccess` callback fires
-3. `invalidateQueries(['blogs'])` marks cache as stale
-4. Components using `useBlogs()` detect stale data
-5. TanStack Query automatically refetches in background
-6. UI updates with new data (blog list without deleted item)
-
-**Why this is better than manual updates:**
-- Single source of truth (server)
-- Handles edge cases (what if another user deleted it?)
-- Works across all components automatically
-
-### **Q: What if the deletion fails?**
-
-**A**:
-- TanStack Query sets `isError: true`
-- We can show error message to user
-- Optionally implement retry logic
-- Cache remains unchanged (no optimistic update rollback needed if we didn't use optimistic updates)
-
-### **Q: How would you handle permissions? (Only author can delete)**
-
-**A**:
-```typescript
-// Add to Blog type
-interface Blog {
-  // ... existing fields
-  authorId: number;
-}
-
-// In component
-{currentUser?.id === blog.authorId && (
-  <Button onClick={handleDelete}>Delete</Button>
-)}
-```
-
-**Backend should also validate** - frontend checks are for UX, not security.
-
-### **Q: What about soft deletes vs hard deletes?**
-
-**A**:
-- **Hard delete** (current): Permanently removes from database
-- **Soft delete**: Mark as deleted, keep in database
-
-**For soft delete:**
-```typescript
-// API would be PATCH instead of DELETE
-update: async (id: number, data: { deleted: boolean }) => {
-  // Update blog with deleted flag
-}
-
-// Filter in query
-getAll: async (): Promise<Blog[]> => {
-  const blogs = await fetch(`${API_BASE_URL}/blogs`);
-  return blogs.filter(blog => !blog.deleted);
-}
-```
-
-**When to use soft delete**: Need to restore, audit trail, or "undo" functionality
-
----
-
-## Summary for Interview
-
-**30-second explanation:**
-"I'd implement deletion by adding a `delete` function to the API layer, creating a `useDeleteBlog` mutation hook that invalidates the blogs list cache and removes the specific blog from cache, then adding a delete button to the BlogDetail component with confirmation. The parent component handles the mutation and updates local state to clear the selection if the deleted blog was being viewed."
-
-**Key points to emphasize:**
-1. ✅ **Separation of concerns**: API → Hook → Component
-2. ✅ **Cache management**: Both invalidation and removal
-3. ✅ **User experience**: Confirmation, loading states, error handling
-4. ✅ **Edge cases**: What if viewing deleted blog? What if it's the last one?
-5. ✅ **Scalability**: Pattern works for any delete operation
 
 **This demonstrates:**
 - Understanding of TanStack Query patterns
