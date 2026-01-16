@@ -166,9 +166,7 @@ npm run build
 
 The build artifacts will be stored in the `dist/` directory.
 
-## Interview-Ready Features
-
-This project demonstrates:
+## This project demonstrates:
 
 - Clean architecture with separation of concerns
 - Proper TypeScript typing throughout
