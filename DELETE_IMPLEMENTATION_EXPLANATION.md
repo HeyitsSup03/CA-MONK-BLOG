@@ -1,4 +1,4 @@
-# How to Implement Blog Deletion - Interview Explanation
+# How to Implement Blog Deletion - Explanation
 
 
 
@@ -149,9 +149,9 @@ const handleDeleteBlog = (id: number) => {
 
 ---
 
-## Advanced Topics for Interview
 
-### **Optimistic Updates** (If Asked)
+
+### **Optimistic Updates** 
 
 **What they are**: Update UI immediately, rollback if API fails
 
