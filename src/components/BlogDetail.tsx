@@ -1,12 +1,18 @@
 import { Blog } from '@/types/blog';
-import { Calendar, Share2, ThumbsUp, MessageCircle, User } from 'lucide-react';
+import { Calendar, Share2, ThumbsUp, MessageCircle, User, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface BlogDetailProps {
   blog: Blog;
+  onDelete?: (id: number) => void;
 }
 
-export function BlogDetail({ blog }: BlogDetailProps) {
+export function BlogDetail({ blog, onDelete }: BlogDetailProps) {
+  const handleDelete = () => {
+    if (window.confirm(`Are you sure you want to delete "${blog.title}"? This action cannot be undone.`)) {
+      onDelete?.(blog.id);
+    }
+  };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -53,12 +59,23 @@ export function BlogDetail({ blog }: BlogDetailProps) {
           {blog.title}
         </h1>
 
-        {/* Share Button */}
-        <div className="mb-6">
+        {/* Action Buttons */}
+        <div className="mb-6 flex gap-3">
           <Button variant="default" size="sm" className="shadow-md hover:shadow-lg transition-shadow">
             <Share2 className="w-4 h-4 mr-2" />
             Share Article
           </Button>
+          {onDelete && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              className="shadow-md hover:shadow-lg transition-shadow"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Blog
+            </Button>
+          )}
         </div>
 
         {/* Metadata Box */}

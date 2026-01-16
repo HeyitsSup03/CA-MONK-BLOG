@@ -29,3 +29,18 @@ export const useCreateBlog = () => {
     },
   });
 };
+
+export const useDeleteBlog = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => blogsApi.delete(id),
+    onSuccess: (_, deletedId) => {
+      // Invalidate the blogs list to refetch
+      queryClient.invalidateQueries({ queryKey: BLOGS_QUERY_KEY });
+      
+      // Remove the specific blog from cache
+      queryClient.removeQueries({ queryKey: ['blog', deletedId] });
+    },
+  });
+};

@@ -39,4 +39,14 @@ export const blogsApi = {
 
     return response.json();
   },
+
+  delete: async (id: number): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/blogs/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete blog');
+    }
+  },
 };

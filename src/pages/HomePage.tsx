@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useBlogs, useBlog } from '@/hooks/useBlogs';
+import { useBlogs, useBlog, useDeleteBlog } from '@/hooks/useBlogs';
 import { BlogCard } from '@/components/BlogCard';
 import { BlogDetail } from '@/components/BlogDetail';
 import { CreateBlogForm } from '@/components/CreateBlogForm';
@@ -19,6 +19,7 @@ export function HomePage() {
     isLoading: blogLoading,
     isError: blogError,
   } = useBlog(selectedBlogId);
+  const deleteBlog = useDeleteBlog();
 
   // Set first blog as selected by default if available
   useEffect(() => {
@@ -26,6 +27,24 @@ export function HomePage() {
       setSelectedBlogId(blogs[0].id);
     }
   }, [blogs, selectedBlogId, showCreateForm]);
+
+  const handleDeleteBlog = (id: number) => {
+    deleteBlog.mutate(id, {
+      onSuccess: () => {
+        // Clear selected blog if it was deleted
+        if (selectedBlogId === id) {
+          setSelectedBlogId(null);
+        }
+        // If there are other blogs, select the first one
+        if (blogs && blogs.length > 1) {
+          const remainingBlogs = blogs.filter((blog) => blog.id !== id);
+          if (remainingBlogs.length > 0) {
+            setSelectedBlogId(remainingBlogs[0].id);
+          }
+        }
+      },
+    });
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -125,7 +144,12 @@ export function HomePage() {
                   </div>
                 )}
 
-                {selectedBlog && <BlogDetail blog={selectedBlog} />}
+                {selectedBlog && (
+                  <BlogDetail
+                    blog={selectedBlog}
+                    onDelete={handleDeleteBlog}
+                  />
+                )}
               </div>
             </div>
           </div>
